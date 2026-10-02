@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Settings - TTCS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .back-button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .panel h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #555;
+        }
+
+        .button {
+            padding: 11px 20px;
+            border: none;
+            border-radius: 6px;
+            background: #333;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .button:hover {
+            opacity: 0.9;
+        }
+
+        .message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .warning {
+            margin-top: 10px;
+            color: #777;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Settings</h1>
+
+        <a href="/dashboard" class="back-button">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Panel Configuration -->
+
+    <div class="panel">
+
+        <h2>Panel Configuration</h2>
+
+        <div class="form-group">
+            <label for="monitor-ip">
+                Monitor IP
+            </label>
+
+            <input
+                type="text"
+                id="monitor-ip"
+                placeholder="192.168.182.137"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="listening-port">
+                Listening Port
+            </label>
+
+            <input
+                type="text"
+                id="listening-port"
+                placeholder="12345"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="panel-url">
+                Panel URL
+            </label>
+
+            <input
+                type="text"
+                id="panel-url"
+                placeholder="/"
+            >
+        </div>
+
+        <button class="button" onclick="saveSettings()">
+            Save Settings
+        </button>
+
+        <div id="settings-message" class="message"></div>
+
+    </div>
+
+
+    <!-- User Configuration -->
+
+    <div class="panel">
+
+        <h2>User Configuration</h2>
+
+        <div class="form-group">
+            <label for="username">
+                Username
+            </label>
+
+            <input
+                type="text"
+                id="username"
+                placeholder="Username"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="New password"
+            >
+        </div>
+
+        <button class="button" onclick="updateUser()">
+            Update User
+        </button>
+
+        <div id="user-message" class="message"></div>
+
+        <div class="warning">
+            After changing the username or password,
+            you must use the new credentials for the next login.
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    function showMessage(elementId, message, success) {
+
+        const element = document.getElementById(elementId);
+
+        element.textContent = message;
+
+        element.className = "message " +
+            (success ? "success" : "error");
+
+        element.style.display = "block";
+    }
+
+
+    // =========================
+    // LOAD SETTINGS
+    // =========================
+
+    async function loadSettings() {
+
+        try {
+
+            const response =
+                await fetch("/api/settings/all");
+
+            if (!response.ok) {
+                throw new Error("Failed to load settings");
+            }
+
+            const data =
+                await response.json();
+
+            document.getElementById("monitor-ip").value =
+                data.monitor_ip || "";
+
+            document.getElementById("listening-port").value =
+                data.listening_port || "";
+
+            document.getElementById("panel-url").value =
+                data.panel_url || "/";
+
+        } catch (error) {
+
+            showMessage(
+                "settings-message",
+                "Cannot load settings",
+                false
+            );
+
+            console.error(error);
+        }
+    }
+
+
+    // =========================
+    // SAVE SETTINGS
+    // =========================
+
+    async function saveSettings() {
+
+        const monitorIP =
+            document.getElementById("monitor-ip").value;
+
+        const listeningPort =
+            document.getElementById("listening-port").value;
+
+        const panelURL =
+            document.getElementById("panel-url").value;
+
+        try {
+
+            const response =
+                await fetch("/api/settings/update", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        monitor_ip: monitorIP,
+
+                        listening_port:
+                            listeningPort,
+
+                        panel_url:
+                            panelURL
+
+                    })
+
+                });
+
+            const data =
+                await response.json();
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Failed to save settings"
+                );
+            }
+
+            showMessage(
+                "settings-message",
+                "Settings saved successfully",
+                true
+            );
+
+        } catch (error) {
+
+            showMessage(
+                "settings-message",
+                error.message,
+                false
+            );
+
+            console.error(error);
+        }
+    }
+
+
+    // =========================
+    // UPDATE USER
+    // =========================
+
+    async function updateUser() {
+
+        const username =
+            document.getElementById("username").value;
+
+        const password =
+            document.getElementById("password").value;
+
+        if (!username || !password) {
+
+            showMessage(
+                "user-message",
+                "Username and password cannot be empty",
+                false
+            );
+
+            return;
+        }
+
+        try {
+
+            const response =
+                await fetch("/api/settings/updateUser", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        username: username,
+
+                        password: password
+
+                    })
+
+                });
+
+            const data =
+                await response.json();
+
+            if (!response.ok || !data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Failed to update user"
+                );
+            }
+
+            showMessage(
+                "user-message",
+                "User updated successfully",
+                true
+            );
+
+            document.getElementById("password").value = "";
+
+        } catch (error) {
+
+            showMessage(
+                "user-message",
+                error.message,
+                false
+            );
+
+            console.error(error);
+        }
+    }
+
+
+    // Load settings when page opens
+
+    loadSettings();
+
+</script>
+
+</body>
+</html>

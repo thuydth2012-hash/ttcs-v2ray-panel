@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTCS - Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 220px;
+            height: 100vh;
+            background: #001529;
+            color: white;
+        }
+
+        .logo {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            font-weight: bold;
+            border-bottom: 1px solid #1f3040;
+        }
+
+        .menu {
+            padding-top: 15px;
+        }
+
+        .menu-item {
+            display: block;
+            padding: 14px 25px;
+            color: #c7cdd4;
+            text-decoration: none;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: #1677ff;
+            color: white;
+        }
+
+        /* Main */
+        .main {
+            margin-left: 220px;
+            min-height: 100vh;
+        }
+
+        .header {
+            height: 70px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .user {
+            color: #666;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .page-title {
+            margin-bottom: 30px;
+        }
+
+        .page-title h1 {
+            margin: 0 0 8px;
+            font-size: 26px;
+        }
+
+        .page-title p {
+            margin: 0;
+            color: #888;
+        }
+
+        /* Circle statistics */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .circle {
+            width: 135px;
+            height: 135px;
+            margin: 0 auto 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: conic-gradient(
+                #1677ff var(--value),
+                #e8edf3 var(--value)
+            );
+        }
+
+        .circle::before {
+            content: "";
+            position: absolute;
+            width: 105px;
+            height: 105px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .circle-value {
+            position: relative;
+            z-index: 1;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .stat-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .stat-subtitle {
+            font-size: 13px;
+            color: #999;
+        }
+
+        /* Information panels */
+        .information {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .panel h3 {
+            margin: 0 0 20px;
+            font-size: 18px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 11px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #777;
+        }
+
+        .info-value {
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .information {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .sidebar {
+                width: 180px;
+            }
+
+            .main {
+                margin-left: 180px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+        TTCS Panel
+    </div>
+
+    <div class="menu">
+
+        <a href="/dashboard" class="menu-item active">
+            Dashboard
+        </a>
+
+        <a href="/inbounds" class="menu-item">
+            Inbound
+        </a>
+
+        <a href="#" class="menu-item">
+            Users
+        </a>
+
+        <a href="/settings" class="menu-item">
+            Settings
+        </a>
+
+    </div>
+
+</div>
+
+
+<div class="main">
+
+    <div class="header">
+
+        <h2>Dashboard</h2>
+
+        <div class="user">
+            Administrator
+        </div>
+
+    </div>
+
+
+    <div class="content">
+
+        <div class="page-title">
+
+            <h1>System Dashboard</h1>
+
+            <p>V2Ray server monitoring and system information</p>
+
+        </div>
+
+
+        <!-- Circle statistics -->
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                 <div id="cpu-circle" class="circle" style="--value: 0%;">
+                 <div id="cpu-value" class="circle-value">0%</div>
+            </div>
+                <div class="stat-title">
+                    CPU
+                </div>
+
+                <div class="stat-subtitle">
+                    Processor Usage
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+<div id="memory-circle" class="circle" style="--value: 0%;">
+    <div id="memory-value" class="circle-value">0%</div>
+</div>
+                <div class="stat-title">
+                    Memory
+                </div>
+
+                <div class="stat-subtitle">
+                    RAM Usage
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+<div id="disk-circle" class="circle" style="--value: 0%;">
+    <div id="disk-value" class="circle-value">0%</div>
+</div>
+
+                <div class="stat-title">
+                    Hard Disk
+                </div>
+
+                <div class="stat-subtitle">
+                    Disk Usage
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+<div id="swap-circle" class="circle" style="--value: 0%;">
+    <div id="swap-value" class="circle-value">0%</div>
+</div>
+                <div class="stat-title">
+                    Swap
+                </div>
+
+                <div class="stat-subtitle">
+                    Swap Usage
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Additional information -->
+
+        <div class="information">
+
+            <div class="panel">
+
+                <h3>V2Ray Information</h3>
+
+                <div class="info-row">
+                    <span class="info-label">Version</span>
+                    <span class="info-value">1.0.0</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">Running</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Port</span>
+                    <span class="info-value">12345</span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-label">Uptime</span>
+                    <span id="uptime-value" class="info-value">00:00:00</span>
+                </div>
+
+            </div>
+
+
+            <div class="panel">
+
+                <h3>Network Information</h3>
+
+                <div class="info-row">
+    <span class="info-label">Upload Traffic</span>
+    <span id="upload-traffic-value" class="info-value">0 MB</span>
+</div>
+
+<div class="info-row">
+    <span class="info-label">Download Traffic</span>
+    <span id="download-traffic-value" class="info-value">0 MB</span>
+</div>
+
+<div class="info-row">
+    <span class="info-label">Upload Speed</span>
+    <span id="upload-speed-value" class="info-value">0 KB/s</span>
+</div>
+
+<div class="info-row">
+    <span class="info-label">Download Speed</span>
+    <span id="download-speed-value" class="info-value">0 KB/s</span>
+</div>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel" style="margin-top: 25px;">
+
+            <h3>System Information</h3>
+
+            <div class="info-row">
+                <span class="info-label">Load Average</span>
+                <span id="load-average-value" class="info-value">0.00</span>
+            </div>
+
+            <div class="info-row">
+                <span class="info-label">Active Processes</span>
+                <span id="active-processes-value" class="info-value">0</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+    function formatUptime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    return String(hours).padStart(2, "0") + ":" +
+           String(minutes).padStart(2, "0") + ":" +
+           String(secs).padStart(2, "0");
+}
+    function updateCircle(circleId, valueId, value) {
+        const circle = document.getElementById(circleId);
+        const valueElement = document.getElementById(valueId);
+
+        const rounded = Number(value).toFixed(1);
+
+        circle.style.setProperty("--value", rounded + "%");
+        valueElement.textContent = rounded + "%";
+    }
+
+    async function updateSystemInfo() {
+        try {
+            const response = await fetch("/api/system");
+
+            if (!response.ok) {
+                throw new Error("Failed to get system information");
+            }
+
+            const data = await response.json();
+
+            updateCircle("cpu-circle", "cpu-value", data.cpu_percent);
+            updateCircle("memory-circle", "memory-value", data.memory_percent);
+            updateCircle("disk-circle", "disk-value", data.disk_percent);
+            updateCircle("swap-circle", "swap-value", data.swap_percent);
+
+document.getElementById("upload-traffic-value").textContent =
+    (data.upload_traffic / 1024 / 1024).toFixed(2) + " MB";
+
+document.getElementById("download-traffic-value").textContent =
+    (data.download_traffic / 1024 / 1024).toFixed(2) + " MB";
+
+document.getElementById("upload-speed-value").textContent =
+    (data.upload_speed / 1024).toFixed(2) + " KB/s";
+
+document.getElementById("download-speed-value").textContent =
+    (data.download_speed / 1024).toFixed(2) + " KB/s";
+document.getElementById("uptime-value").textContent =
+    formatUptime(data.uptime);
+
+document.getElementById("load-average-value").textContent =
+    Number(data.load_average).toFixed(2);
+document.getElementById("active-processes-value").textContent =
+    data.active_processes;    
+        } catch (error) {
+            console.error("System information error:", error);
+        }
+    }
+
+    updateSystemInfo();
+    setInterval(updateSystemInfo, 3000);
+</script>
+</body>
+</html>
